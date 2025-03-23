@@ -1,0 +1,33 @@
+### Node.js ###
+node_modules/
+npm-debug.log
+yarn-error.log
+
+### Environment Variables ###
+.env
+
+### Logs ###
+logs/
+*.log
+
+### Database ###
+*.sqlite
+db.sqlite3
+pgdata/
+
+### IDE & Editor ###
+.vscode/
+.idea/
+.DS_Store
+
+### Build Artifacts ###
+dist/
+build/
+
+### Dependencies ###
+package-lock.json
+yarn.lock
+
+### Misc ###
+*.bak
+*.swp

@@ -33,21 +33,41 @@
 // }
 
 // export default App
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Home from "./pages/Home";
+// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// import Login from "./pages/Login";
+// import Register from "./pages/Register";
+// import Home from "./pages/Home";
 
-const App = () => {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-      </Routes>
-    </Router>
-  );
-};
+// const App = () => {
+//   return (
+//     <Router>
+//       <Routes>
+//         <Route path="/" element={<Home />} />
+//         <Route path="/login" element={<Login />} />
+//         <Route path="/register" element={<Register />} />
+//       </Routes>
+//     </Router>
+//   );
+// };
+
+//export default App;
+import { useState, useEffect } from "react";
+
+function App() {
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+  fetch("http://localhost:5000/")
+    .then((res) => res.text())
+    .then((data) => {
+      console.log("Fetched data:", data); // Debugging line
+      setMessage(data);
+    })
+    .catch((err) => console.error("Error fetching:", err));
+}, []);
+
+
+  return <h1>{message}</h1>;
+}
 
 export default App;

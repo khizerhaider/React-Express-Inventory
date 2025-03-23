@@ -52,6 +52,7 @@
 
 //export default App;
 import { useState, useEffect } from "react";
+import AuthForms from "./AuthForms";
 
 function App() {
   const [message, setMessage] = useState("");
@@ -67,7 +68,11 @@ function App() {
 }, []);
 
 
-  return <h1>{message}</h1>;
+  return (
+    <div>
+      <AuthForms />
+    </div>
+  );
 }
 
 export default App;

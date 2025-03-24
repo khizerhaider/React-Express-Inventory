@@ -50,13 +50,16 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider value={{ 
       user, 
       loading, 
-      login: handleLogin, // ✅ Provide login
-      register: handleRegister, // ✅ Provide register
-      logout: handleLogout 
+      login: handleLogin, 
+      register: handleRegister, 
+      logout: handleLogout,
+      isAdmin: user?.role === 'admin',  // ✅ Add isAdmin
+      isSeller: user?.role === 'seller' || user?.role === 'admin' // ✅ Add isSeller
     }}>
       {loading ? <p>Loading...</p> : children}
     </AuthContext.Provider>
   );
+  
 };
 
 export const useAuth = () => {

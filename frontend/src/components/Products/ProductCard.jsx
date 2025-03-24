@@ -5,8 +5,14 @@ import { useAuth } from '../../context/AuthContext';
 import './Products.css';
 
 const ProductCard = ({ product, onDelete, onEdit }) => {
-  const { isAdmin, isSeller, user } = useAuth();
-  const canManage = isAdmin || (isSeller && user.id === product.seller_id);
+    const { isAdmin, isSeller, user } = useAuth();
+    console.log("User Data:", user);
+    console.log("Product Data:", product);
+    console.log("isAdmin:", isAdmin, "isSeller:", isSeller, "user.id:", user?.id, "product.seller_id:", product?.seller_id);
+    
+    const canManage = isAdmin || (isSeller && user?.id === product?.seller_id);
+    console.log("Can Manage Product:", canManage);
+    
 
   return (
     <div className="product-card">

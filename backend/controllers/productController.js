@@ -3,32 +3,29 @@ import pool from "../config/db.js"; // PostgreSQL connection
 // Get all products
 export const getAllProducts = async (req, res) => {
   try {
-    let query = "SELECT * FROM products WHERE 1=1"; // 1=1 helps avoid syntax issues
+    console.log("🔍 Checking req.user:", req.user);
+
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized: No user data found." });
+    }
+
+    let query = 'SELECT id, name, price, category, stock, seller_id FROM products';
     const values = [];
-    let paramIndex = 1;
 
-    // Filter by category
-    if (req.query.category) {
-      query += ` AND category = $${paramIndex}`;
-      values.push(req.query.category);
-      paramIndex++;
+    if (req.user.role === 'seller') {
+      query += ' WHERE seller_id = $1';
+      values.push(req.user.id);
     }
 
-    // Filter by price range
-    if (req.query.minPrice && req.query.maxPrice) {
-      query += ` AND price BETWEEN $${paramIndex} AND $${paramIndex + 1}`;
-      values.push(req.query.minPrice, req.query.maxPrice);
-      paramIndex += 2;
-    }
-
-    // Execute query with parameters
-    const result = await pool.query(query, values);
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    const { rows } = await pool.query(query, values);
+    console.log("✅ Products fetched:", rows);
+    res.json(rows);
+  } catch (error) {
+    console.error("❌ Error fetching products:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 
 // Get single product by ID
@@ -50,87 +47,73 @@ export const getProductById = async (req, res) => {
 
 // Add new product
 export const addProduct = async (req, res) => {
-  try {
-    const { name, price, category, stock } = req.body;
-    const seller_id = req.user.id; // Get seller_id from authenticated user
-    
-    // Basic validation
-    if (!name || !price || !category || !stock) {
-      return res.status(400).json({ error: "All fields are required" });
+    try {
+      if (req.user.role !== 'admin' && req.user.role !== 'seller') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+  
+      const { name, price, category, stock } = req.body;
+      const seller_id = req.user.id;  // Attach seller ID from auth
+  
+      const query = 'INSERT INTO products (name, price, category, stock, seller_id) VALUES ($1, $2, $3, $4, $5) RETURNING *';
+      const values = [name, price, category, stock, seller_id];
+  
+      const { rows } = await pool.query(query, values);
+      res.status(201).json(rows[0]);
+    } catch (error) {
+      console.error("❌ Error creating product:", error);
+      res.status(500).json({ message: "Server error" });
     }
-    
-    const result = await pool.query(
-      "INSERT INTO products (name, price, category, stock, seller_id, created_at) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING *",
-      [name, price, category, stock, seller_id]
-    );
-    
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
-};
+  };
+  
 
-// Update product
-export const updateProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name, price, category, stock } = req.body;
-    const user = req.user;
-    
-    // First check if product exists
-    const productCheck = await pool.query("SELECT * FROM products WHERE id = $1", [id]);
-    
-    if (productCheck.rows.length === 0) {
-      return res.status(404).json({ error: "Product not found" });
+  export const updateProduct = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, price, category, stock } = req.body;
+  
+      let query = 'UPDATE products SET name=$1, price=$2, category=$3, stock=$4 WHERE id=$5 RETURNING *';
+      let values = [name, price, category, stock, id];
+  
+      if (req.user.role !== 'admin') {
+        query += ' AND seller_id=$6';
+        values.push(req.user.id);
+      }
+  
+      const { rows } = await pool.query(query, values);
+  
+      if (rows.length === 0) return res.status(403).json({ message: "Unauthorized to update this product" });
+  
+      res.json(rows[0]);
+    } catch (error) {
+      console.error("❌ Error updating product:", error);
+      res.status(500).json({ message: "Server error" });
     }
-    
-    // Check if user is admin or the seller of this product
-    if (user.role !== "admin" && user.id !== productCheck.rows[0].seller_id) {
-      return res.status(403).json({ error: "Not authorized to update this product" });
+  };
+  
+  export const deleteProduct = async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      let query = 'DELETE FROM products WHERE id=$1';
+      let values = [id];
+  
+      if (req.user.role !== 'admin') {
+        query += ' AND seller_id=$2';
+        values.push(req.user.id);
+      }
+  
+      const { rowCount } = await pool.query(query, values);
+  
+      if (rowCount === 0) return res.status(403).json({ message: "Unauthorized to delete this product" });
+  
+      res.json({ message: "Product deleted successfully" });
+    } catch (error) {
+      console.error("❌ Error deleting product:", error);
+      res.status(500).json({ message: "Server error" });
     }
-    
-    // Update product
-    const result = await pool.query(
-      "UPDATE products SET name = $1, price = $2, category = $3, stock = $4 WHERE id = $5 RETURNING *",
-      [name, price, category, stock, id]
-    );
-    
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
-};
-
-// Delete product
-export const deleteProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = req.user;
-    
-    // First check if product exists
-    const productCheck = await pool.query("SELECT * FROM products WHERE id = $1", [id]);
-    
-    if (productCheck.rows.length === 0) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-    
-    // Check if user is admin or the seller of this product
-    if (user.role !== "admin" && user.id !== productCheck.rows[0].seller_id) {
-      return res.status(403).json({ error: "Not authorized to delete this product" });
-    }
-    
-    // Delete product
-    await pool.query("DELETE FROM products WHERE id = $1", [id]);
-    
-    res.json({ message: "Product deleted successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
-};
-
+  };
+  
 // Get products by seller (only their products)
 export const getSellerProducts = async (req, res) => {
   try {

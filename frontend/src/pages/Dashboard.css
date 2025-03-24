@@ -1,0 +1,13 @@
+/* src/pages/Dashboard.css */
+
+.dashboard-page {
+    padding: 20px;
+    background-color: #f4f4f4;
+    min-height: 100vh;
+  }
+  
+  .dashboard-page h1 {
+    text-align: center;
+    color: #333;
+  }
+  

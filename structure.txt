@@ -1,0 +1,42 @@
+frontend/
+├── public/
+│   ├── index.html
+│   └── favicon.ico
+├── src/
+│   ├── components/
+│   │   ├── Auth/
+│   │   │   ├── Login.jsx
+│   │   │   └── Register.jsx
+│   │   ├── Layout/
+│   │   │   ├── Navbar.jsx
+│   │   │   └── Footer.jsx
+│   │   ├── Products/
+│   │   │   ├── ProductCard.jsx
+│   │   │   ├── ProductDetails.jsx
+│   │   │   ├── ProductForm.jsx
+│   │   │   ├── ProductsList.jsx
+│   │   │   └── ProductSearch.jsx
+│   │   └── Admin/
+│   │       ├── AdminPanel.jsx
+│   │       └── SellerPanel.jsx
+│   ├── context/
+│   │   └── AuthContext.jsx
+│   ├── pages/
+│   │   ├── HomePage.jsx
+│   │   ├── LoginPage.jsx
+│   │   ├── RegisterPage.jsx
+│   │   ├── AdminPage.jsx
+│   │   ├── SellerPage.jsx
+│   │   └── ProductDetailsPage.jsx
+│   ├── services/
+│   │   ├── api.js
+│   │   ├── auth.js
+│   │   └── products.js
+│   ├── utils/
+│   │   ├── authUtils.js
+│   │   └── constants.js
+│   ├── App.jsx
+│   ├── index.jsx
+│   └── App.css
+├── package.json
+└── README.md

@@ -1,0 +1,29 @@
+/* src/components/Products/Products.css */
+
+.product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .product-form input,
+  .product-form select,
+  .product-form button {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .product-form button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .product-form button:hover {
+    background-color: #0056b3;
+  }

@@ -3,30 +3,33 @@ import pool from "../config/db.js"; // PostgreSQL connection
 // Get all products
 export const getAllProducts = async (req, res) => {
   try {
-    let query = "SELECT * FROM products";
-    
-    // Filter by category if provided
+    let query = "SELECT * FROM products WHERE 1=1"; // 1=1 helps avoid syntax issues
+    const values = [];
+    let paramIndex = 1;
+
+    // Filter by category
     if (req.query.category) {
-      query += " WHERE category = $1";
-      const result = await pool.query(query, [req.query.category]);
-      return res.json(result.rows);
+      query += ` AND category = $${paramIndex}`;
+      values.push(req.query.category);
+      paramIndex++;
     }
-    
-    // Filter by price range if provided
+
+    // Filter by price range
     if (req.query.minPrice && req.query.maxPrice) {
-      query += " WHERE price BETWEEN $1 AND $2";
-      const result = await pool.query(query, [req.query.minPrice, req.query.maxPrice]);
-      return res.json(result.rows);
+      query += ` AND price BETWEEN $${paramIndex} AND $${paramIndex + 1}`;
+      values.push(req.query.minPrice, req.query.maxPrice);
+      paramIndex += 2;
     }
-    
-    // No filters - get all products
-    const result = await pool.query(query);
+
+    // Execute query with parameters
+    const result = await pool.query(query, values);
     res.json(result.rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 };
+
 
 // Get single product by ID
 export const getProductById = async (req, res) => {

@@ -1,92 +1,42 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import AdminPage from './pages/AdminPage';
+import SellerPage from './pages/SellerPage';
+import ProductDetailsPage from './pages/ProductDetailsPage';
+import Navbar from './components/Layout/Navbar';
+import Footer from './components/Layout/Footer';
+import { AuthProvider } from './context/AuthContext'; // ✅ Import AuthProvider
+import { isAuthenticated, getUserRole } from './utils/authUtils';
+import { USER_ROLES } from './utils/constants';
 import './App.css';
 
-// Auth Components
-import Login from './pages/Login';
-import Register from './pages/Register';
-
-// Product Components
-import ProductList from './pages/ProductList';
-import ProductDetail from './pages/ProductDetail';
-import ProductForm from './pages/ProductForm';
-
-// Admin Components
-import AdminDashboard from './admin/AdminDashboard';
-
-// Layout Components
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-
-// Protected Route Component
-const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  
-  if (!token) {
-    return <Navigate to="/login" />;
-  }
-  
+const ProtectedRoute = ({ children, role }) => {
+  if (!isAuthenticated()) return <Navigate to="/login" />;
+  if (role && getUserRole() !== role) return <Navigate to="/" />;
   return children;
 };
 
-// Admin Route Component
-const AdminRoute = ({ children }) => {
-  const user = JSON.parse(localStorage.getItem('user')) || {};
-  const token = localStorage.getItem('token');
-  
-  if (!token || user.role !== 'admin') {
-    return <Navigate to="/" />;
-  }
-  
-  return children;
-};
-
-function App() {
+const App = () => {
   return (
-    <BrowserRouter>
-      <div className="app-container">
+    <AuthProvider>  {/* ✅ Wrap the entire app inside AuthProvider */}
+      <Router>
         <Navbar />
-        
-        <main className="main-content">
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<ProductList />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/products/:id" element={<ProductDetail />} />
-            
-            {/* Protected Routes - Require Authentication */}
-            <Route path="/products/edit/:id" element={
-              <ProtectedRoute>
-                <ProductForm />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/add-product" element={
-              <ProtectedRoute>
-                <ProductForm />
-              </ProtectedRoute>
-            } />
-            
-            {/* Admin Routes */}
-            <Route path="/admin" element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            } />
-            
-            <Route path="/admin/add-product" element={
-              <AdminRoute>
-                <ProductForm />
-              </AdminRoute>
-            } />
-          </Routes>
-        </main>
-        
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/product/:id" element={<ProductDetailsPage />} />
+          <Route path="/admin" element={<ProtectedRoute role={USER_ROLES.ADMIN}><AdminPage /></ProtectedRoute>} />
+          <Route path="/seller" element={<ProtectedRoute role={USER_ROLES.SELLER}><SellerPage /></ProtectedRoute>} />
+        </Routes>
         <Footer />
-      </div>
-    </BrowserRouter>
+      </Router>
+       {/* ✅ Closing tag */}
+    </AuthProvider> 
   );
-}
+};
 
 export default App;

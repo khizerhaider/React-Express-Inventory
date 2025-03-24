@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = "http://localhost:5000";
 
-function Login() {
+function Register() {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -25,9 +25,8 @@ function Login() {
       setMessage(data.message);
 
       if (response.ok) {
-        alert("Login successful!");
-        // Redirect user after successful login (e.g., to dashboard)
-        navigate("/dashboard");
+        alert("Registration successful! Redirecting to login...");
+        navigate("/login"); // Redirect to login page
       }
     } catch (error) {
       setMessage("Error connecting to server");
@@ -36,14 +35,14 @@ function Login() {
 
   return (
     <div style={styles.container}>
-      <h2>Login</h2>
+      <h2>Register</h2>
       <form onSubmit={handleSubmit}>
         <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} required style={styles.input} />
         <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required style={styles.input} />
-        <button type="submit" style={styles.button}>Login</button>
+        <button type="submit" style={styles.button}>Register</button>
       </form>
       <p>{message}</p>
-      <button onClick={() => navigate("/register")} style={styles.switchButton}>Go to Register</button>
+      <button onClick={() => navigate("/login")} style={styles.switchButton}>Go to Login</button>
     </div>
   );
 }
@@ -55,4 +54,4 @@ const styles = {
   switchButton: { marginTop: "10px", padding: "5px 10px", border: "none", backgroundColor: "#6c757d", color: "white", borderRadius: "5px", cursor: "pointer" }
 };
 
-export default Login;
+export default Register;

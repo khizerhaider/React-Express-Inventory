@@ -1,22 +1,24 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import './App.css';
+import '../App.css';
+
 
 // Auth Components
-import Login from './pages/Login';
-import Register from './pages/Register';
+import Login from './Login';
+import Register from './Register';
 
 // Product Components
-import ProductList from './pages/ProductList';
-import ProductDetail from './pages/ProductDetail';
-import ProductForm from './pages/ProductForm';
+import ProductList from './ProductList';
+import ProductDetail from './ProductDetail';
+import ProductForm from './ProductForm';
 
 // Admin Components
-import AdminDashboard from './admin/AdminDashboard';
+import AdminDashboard from '../admin/AdminDashboard';
+
 
 // Layout Components
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
